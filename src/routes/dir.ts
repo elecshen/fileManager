@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyRequest } from "fastify";
 import * as fs from "fs/promises";
-import db, { SelectedFolder } from "../config/db";
+import db, { FolderUpdate, SelectedFolder } from "../config/db";
 import { authMiddleware } from "./auth";
 import { MultipartFile, MultipartValue } from "@fastify/multipart";
 
@@ -98,19 +98,19 @@ const routes = async (
       if (folder.parentId === null) {
         return reply.code(400).send({ error: "Folder cannot be edited" });
       }
-
-      if (newName) {
-        await db
-          .updateTable("folder")
-          .set({ name: newName })
-          .where("id", "=", folderId)
-          .execute();
+      if (folder.id === newParentId) {
+        return reply
+          .code(400)
+          .send({ error: "Folder cannot be moved to itself" });
       }
-
-      if (newParentId) {
+      if (typeof newName !== "undefined" || typeof newParentId !== undefined) {
+        const updateFolder: FolderUpdate = {
+          name: newName,
+          parentId: newParentId,
+        };
         await db
           .updateTable("folder")
-          .set({ parentId: newParentId })
+          .set(updateFolder)
           .where("id", "=", folderId)
           .execute();
       }

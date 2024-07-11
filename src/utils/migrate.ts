@@ -46,6 +46,8 @@ function serveMigration(migrationResult: MigrationResultSet) {
   }
 }
 
-const direction = process.argv[2] ?? "up";
-migrate(direction);
-// process.exit(0);
+if (require.main === module) {
+  const direction = process.argv[2] ?? "up";
+  migrate(direction);
+  process.exit(0);
+}

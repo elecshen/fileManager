@@ -1,5 +1,6 @@
 # Custom
-postgres.secret.env
+!postgres.secret.env
+!.env
 .vscode
 db_data
 uploads
@@ -79,7 +80,7 @@ web_modules/
 .yarn-integrity
 
 # dotenv environment variable files
-.env
+#.env
 .env.development.local
 .env.test.local
 .env.production.local
