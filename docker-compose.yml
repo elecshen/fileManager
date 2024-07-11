@@ -1,0 +1,47 @@
+name: dm
+
+services:
+  # authservice:
+  #   image: elecshen/dm_authservice:${btag}
+  #   restart: on-failure
+  #   environment:
+  #     - ASPNETCORE_URLS
+  #     - ASPNETCORE_ENVIRONMENT
+  #     - CONNECTION_STRING_NAME
+  #     - SECRET_PATH
+  #     - SECRET_PATH_SOURCE
+  #   volumes:
+  #     - type: bind
+  #       source: ${SECRET_PATH_SOURCE}
+  #       target: ${SECRET_PATH}
+  #       read_only: true
+  #   ports:
+  #     - 80:80
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   networks:
+  #     - postgres
+
+  db:
+    image: postgres:alpine3.20
+    hostname: dbpostgres
+    restart: on-failure
+    env_file:
+      - ./postgres.secret.env
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - postgres
+
+networks:
+  postgres:
+    driver: bridge

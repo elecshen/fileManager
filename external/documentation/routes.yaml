@@ -1,0 +1,352 @@
+openapi: 3.0.0
+info:
+  title: File Management API
+  version: 1.0.0
+  description: API for managing folders and files
+servers:
+  - url: http://localhost:3000
+tags:
+  - name: Folders
+    description: Operations related to folders
+  - name: Files
+    description: Operations related to files
+  - name: Auth
+    description: Authentication operations
+
+paths:
+  /folder/:
+    get:
+      tags:
+        - Folders
+      summary: Get folder contents
+      description: Retrieve the contents of a specific folder
+      parameters:
+        - name: folderId
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: ID of the folder to retrieve contents from
+      responses:
+        "200":
+          description: Folder contents retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  folders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                  files:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+        "404":
+          description: Folder not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+      security:
+        - bearerAuth: []
+
+    post:
+      tags:
+        - Folders
+      summary: Create a new folder
+      description: Create a new folder with the specified name and parent ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                parentId:
+                  type: integer
+      responses:
+        "200":
+          description: Folder created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+      security:
+        - bearerAuth: []
+
+  /folder/{folderId}:
+    put:
+      tags:
+        - Folders
+      summary: Update folder details
+      description: Update the name or parent ID of a specified folder
+      parameters:
+        - name: folderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                newName:
+                  type: string
+                newParentId:
+                  type: integer
+      responses:
+        "200":
+          description: Folder updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+        "404":
+          description: Folder not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+      security:
+        - bearerAuth: []
+
+    delete:
+      tags:
+        - Folders
+      summary: Delete a folder
+      description: Delete a folder by ID
+      parameters:
+        - name: folderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Folder deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+        "404":
+          description: Folder not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+      security:
+        - bearerAuth: []
+
+  /folder/files:
+    post:
+      tags:
+        - Files
+      summary: Upload a file
+      description: Upload a file to a specified folder
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                folderId:
+                  type: integer
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        "404":
+          description: Folder not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+      security:
+        - bearerAuth: []
+
+  /folder/files/{fileId}:
+    delete:
+      tags:
+        - Files
+      summary: Delete a file
+      description: Delete a file by ID
+      parameters:
+        - name: fileId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: File deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+        "404":
+          description: File not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+      security:
+        - bearerAuth: []
+
+  /register:
+    post:
+      tags:
+        - Auth
+      summary: Register a new user
+      description: Register a new user with username and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+
+  /login:
+    post:
+      tags:
+        - Auth
+      summary: Login a user
+      description: Login a user and receive a JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: User logged in successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
