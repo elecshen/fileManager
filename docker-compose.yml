@@ -1,27 +1,16 @@
-name: dm
-
 services:
-  # authservice:
-  #   image: elecshen/dm_authservice:${btag}
-  #   restart: on-failure
-  #   environment:
-  #     - ASPNETCORE_URLS
-  #     - ASPNETCORE_ENVIRONMENT
-  #     - CONNECTION_STRING_NAME
-  #     - SECRET_PATH
-  #     - SECRET_PATH_SOURCE
-  #   volumes:
-  #     - type: bind
-  #       source: ${SECRET_PATH_SOURCE}
-  #       target: ${SECRET_PATH}
-  #       read_only: true
-  #   ports:
-  #     - 80:80
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-  #   networks:
-  #     - postgres
+  app:
+    build: .
+    restart: on-failure
+    volumes:
+      - ./uploads:/app/uploads
+    ports:
+      - 3000:3000
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - postgres
 
   db:
     image: postgres:alpine3.20
